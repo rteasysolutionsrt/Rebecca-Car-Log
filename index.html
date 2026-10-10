@@ -2,324 +2,391 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CarLog">
+<meta name="theme-color" content="#ffffff">
 <title>Rebecca CarLog</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- PWA / Home Screen Icon -->
 <script>
+// ═══ SUPABASE CONFIG ═══
+const SUPABASE_URL  = 'https://rifezqqkbkxdxtexiyhb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZmV6cXFrYmt4ZHh0ZXhpeWhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMzUwNzQsImV4cCI6MjA5MDYxMTA3NH0.ILFoQbwLJ4zM7ch2-0MhMzlLCTOL8frZRu61aMdeZdA';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// Codice utente — scelto dall'utente, uguale su tutti i dispositivi
+function getDeviceId() {
+  return localStorage.getItem('carlog_device_id') || '';
+}
+function setDeviceId(code) {
+  const clean = code.trim().toLowerCase().replace(/[^a-z0-9_\-]/g,'');
+  localStorage.setItem('carlog_device_id', clean);
+  return clean;
+}
+let DEVICE_ID = getDeviceId();
+</script>
+
+<script>
+// Toyota Aygo icon
 (function() {
-  // Genera icona SVG Toyota Aygo come canvas e la imposta come apple-touch-icon
   const canvas = document.createElement('canvas');
   canvas.width = 180; canvas.height = 180;
   const ctx = canvas.getContext('2d');
-
-  // Sfondo celestiale
   ctx.fillStyle = '#4a7fa5';
-  ctx.beginPath();
-  ctx.roundRect(0, 0, 180, 180, 32);
-  ctx.fill();
-
-  // Carrozzeria macchina (Aygo compatta)
+  ctx.beginPath(); ctx.roundRect(0, 0, 180, 180, 32); ctx.fill();
   ctx.fillStyle = '#ffffff';
-  // Base corpo
-  ctx.beginPath();
-  ctx.roundRect(20, 95, 140, 42, 10);
-  ctx.fill();
-
-  // Tettuccio
-  ctx.beginPath();
-  ctx.moveTo(50, 95);
-  ctx.lineTo(65, 62);
-  ctx.lineTo(115, 62);
-  ctx.lineTo(130, 95);
-  ctx.closePath();
-  ctx.fill();
-
-  // Finestrino sx
+  ctx.beginPath(); ctx.roundRect(20, 95, 140, 42, 10); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(50,95); ctx.lineTo(65,62); ctx.lineTo(115,62); ctx.lineTo(130,95); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#a8d4f0';
-  ctx.beginPath();
-  ctx.moveTo(55, 93);
-  ctx.lineTo(67, 67);
-  ctx.lineTo(88, 67);
-  ctx.lineTo(88, 93);
-  ctx.closePath();
-  ctx.fill();
-
-  // Finestrino dx
-  ctx.beginPath();
-  ctx.moveTo(92, 93);
-  ctx.lineTo(92, 67);
-  ctx.lineTo(113, 67);
-  ctx.lineTo(125, 93);
-  ctx.closePath();
-  ctx.fill();
-
-  // Divisore finestrini
-  ctx.fillStyle = '#4a7fa5';
-  ctx.fillRect(89, 65, 4, 30);
-
-  // Ruota sx
-  ctx.fillStyle = '#2a3a4a';
-  ctx.beginPath();
-  ctx.arc(52, 140, 18, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle = '#aac8e0';
-  ctx.beginPath();
-  ctx.arc(52, 140, 10, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(52, 140, 5, 0, Math.PI*2);
-  ctx.fill();
-
-  // Ruota dx
-  ctx.fillStyle = '#2a3a4a';
-  ctx.beginPath();
-  ctx.arc(128, 140, 18, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle = '#aac8e0';
-  ctx.beginPath();
-  ctx.arc(128, 140, 10, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(128, 140, 5, 0, Math.PI*2);
-  ctx.fill();
-
-  // Faro anteriore
-  ctx.fillStyle = '#ffe090';
-  ctx.beginPath();
-  ctx.roundRect(148, 102, 14, 10, 4);
-  ctx.fill();
-
-  // Faro posteriore
-  ctx.fillStyle = '#ff8080';
-  ctx.beginPath();
-  ctx.roundRect(18, 102, 14, 10, 4);
-  ctx.fill();
-
-  // Testo "AYGO"
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 13px Inter, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('AYGO', 90, 30);
-
-  // Imposta come link icona
+  ctx.beginPath(); ctx.moveTo(55,93); ctx.lineTo(67,67); ctx.lineTo(88,67); ctx.lineTo(88,93); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(92,93); ctx.lineTo(92,67); ctx.lineTo(113,67); ctx.lineTo(125,93); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#4a7fa5'; ctx.fillRect(89,65,4,30);
+  [52,128].forEach(x => {
+    ctx.fillStyle='#2a3a4a'; ctx.beginPath(); ctx.arc(x,140,18,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#aac8e0'; ctx.beginPath(); ctx.arc(x,140,10,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(x,140,5,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='#ffe090'; ctx.beginPath(); ctx.roundRect(148,102,14,10,4); ctx.fill();
+  ctx.fillStyle='#ff8080'; ctx.beginPath(); ctx.roundRect(18,102,14,10,4); ctx.fill();
+  ctx.fillStyle='#ffffff'; ctx.font='bold 13px Inter,sans-serif'; ctx.textAlign='center'; ctx.fillText('AYGO',90,30);
   const dataUrl = canvas.toDataURL('image/png');
-  const link = document.createElement('link');
-  link.rel = 'apple-touch-icon';
-  link.href = dataUrl;
-  document.head.appendChild(link);
-
-  // Salva per uso topbar
+  const link = document.createElement('link'); link.rel='apple-touch-icon'; link.href=dataUrl; document.head.appendChild(link);
   window._carIconUrl = dataUrl;
 })();
 </script>
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #e8eef4;
-  --surface: #ffffff;
-  --border: #d0dce8;
-  --text: #1e2d3d;
-  --text2: #5a7a92;
-  --text3: #8faab8;
-  --blue: #4a7fa5;
-  --blue-light: #ddeaf4;
-  --orange: #c49a5a;
-  --orange-light: #f5ead8;
-  --green: #4a9680;
-  --green-light: #d4ede7;
-  --red: #c06060;
-  --red-light: #f5dede;
-  --purple: #7a72b0;
-  --purple-light: #e4e2f4;
+  --bg: #e8eef4; --surface: #ffffff; --border: #d0dce8;
+  --text: #1e2d3d; --text2: #5a7a92; --text3: #8faab8;
+  --blue: #4a7fa5; --blue-light: #ddeaf4; --blue-mid: #c8dce9;
+  --orange: #c49a5a; --orange-light: #f5ead8;
+  --green: #4a9680; --green-light: #d4ede7;
+  --red: #c06060; --red-light: #f5dede;
+  --purple: #7a72b0; --purple-light: #e4e2f4;
 }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+html, body { height: 100%; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100%; -webkit-text-size-adjust: 100%; }
 
-/* TOPBAR */
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  position: sticky; top: 0; z-index: 50;
+/* ═══ SYNC INDICATOR ═══ */
+.sync-bar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue) 0%, #7ac8e8 50%, var(--blue) 100%);
+  background-size: 200% 100%;
+  animation: syncAnim 1.2s linear infinite;
+  z-index: 200;
 }
-.topbar-menu { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 4px; }
+.sync-bar.show { display: block; }
+@keyframes syncAnim { 0%{background-position:0% 0} 100%{background-position:200% 0} }
+
+/* ═══ OFFLINE BANNER ═══ */
+.offline-banner {
+  display: none;
+  background: #fff3cd; border-bottom: 1px solid #ffc107;
+  padding: 8px 16px; text-align: center;
+  font-size: 12px; font-weight: 600; color: #856404;
+  position: sticky; top: 57px; z-index: 49;
+}
+.offline-banner.show { display: block; }
+
+/* ═══ WIZARD ═══ */
+#wizard-overlay {
+  display: none; position: fixed; inset: 0;
+  background: linear-gradient(160deg, #2a4a6a 0%, #3a6a8a 100%);
+  z-index: 500; align-items: center; justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 16px);
+  overflow-y: auto;
+}
+#wizard-overlay.show { display: flex; }
+.wizard-box { background: var(--surface); border-radius: 24px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.wizard-hero { background: linear-gradient(160deg, var(--blue) 0%, #3a6a8a 100%); padding: 28px 24px 20px; text-align: center; }
+.wizard-hero .wh-icon { font-size: 48px; margin-bottom: 10px; display: block; }
+.wizard-hero h2 { font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.wizard-hero p { font-size: 0.8rem; color: rgba(255,255,255,0.75); }
+.wizard-progress { display: flex; gap: 6px; justify-content: center; padding: 14px 0 0; }
+.wiz-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; }
+.wiz-dot.active { width: 22px; border-radius: 4px; background: #fff; }
+.wizard-body { padding: 24px 20px 8px; }
+.wiz-step { display: none; }
+.wiz-step.active { display: block; }
+.wiz-step-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 16px; }
+.wiz-field { margin-bottom: 14px; }
+.wiz-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+.wiz-field input, .wiz-field select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Inter',sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
+.wiz-field input:focus { border-color: var(--blue); background: #fff; }
+.fuel-type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 4px; }
+.fuel-type-opt { border: 2px solid var(--border); border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; background: var(--bg); transition: all 0.2s; user-select: none; }
+.fuel-type-opt.sel { border-color: var(--blue); background: var(--blue-light); }
+.fuel-type-opt.sel-gpl { border-color: var(--green); background: var(--green-light); }
+.fuel-type-opt .ft-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+.fuel-type-opt .ft-name { font-size: 11px; font-weight: 700; color: var(--text); display: block; }
+.fuel-type-opt .ft-sub { font-size: 10px; color: var(--text2); display: block; margin-top: 1px; }
+.wizard-footer { padding: 16px 20px 20px; display: flex; gap: 10px; }
+.btn-wiz-back { flex: 0 0 90px; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border); background: transparent; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; }
+.btn-wiz-next { flex: 1; padding: 12px; border-radius: 10px; border: none; background: var(--blue); color: #fff; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* ═══ TOPBAR ═══ */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; padding-top: calc(12px + env(safe-area-inset-top)); display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 50; }
+.topbar-menu { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 4px; flex-shrink: 0; }
 .topbar-menu span { display: block; width: 20px; height: 2px; background: var(--text2); border-radius: 2px; }
-.topbar-logo { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+.topbar-logo { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; }
 .topbar-logo span { color: var(--blue); }
-.car-photo-btn {
-  margin-left: auto;
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  border: 2px dashed var(--border);
-  background: var(--bg);
-  overflow: hidden;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; flex-shrink: 0;
-  transition: border-color 0.2s;
-}
-.car-photo-btn:hover { border-color: var(--blue); }
+.topbar-user { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 600; color: var(--text2); max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.car-photo-btn { width: 34px; height: 34px; border-radius: 10px; border: 2px dashed var(--border); background: var(--bg); overflow: hidden; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .car-photo-btn img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-/* SIDEBAR */
+/* ═══ SIDEBAR ═══ */
 .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; }
 .sidebar-overlay.open { display: block; }
-.sidebar {
-  position: fixed; top: 0; left: 0; bottom: 0; width: 260px;
-  background: #111827; z-index: 101;
-  transform: translateX(-100%);
-  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  display: flex; flex-direction: column; padding: 0 0 24px;
-}
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #111827; z-index: 101; transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; padding: 0 0 env(safe-area-inset-bottom,20px); }
 .sidebar.open { transform: translateX(0); }
-.sidebar-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
+.sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 16px; padding-top: calc(20px + env(safe-area-inset-top)); border-bottom: 1px solid rgba(255,255,255,0.08); }
 .sidebar-brand { display: flex; align-items: center; gap: 10px; }
-.sidebar-icon-wrap { width: 36px; height: 36px; background: #4a7fa5; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.sidebar-icon-wrap { width: 36px; height: 36px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .sidebar-brand-name { font-size: 15px; font-weight: 700; color: #fff; }
 .sidebar-close { background: none; border: none; color: #9ca3af; font-size: 24px; cursor: pointer; padding: 2px 6px; }
-.sidebar-nav { padding: 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.nav-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; border-radius: 10px; cursor: pointer;
-  color: #9ca3af; font-size: 14px; font-weight: 500;
-  border: none; background: none; width: 100%; text-align: left;
-  transition: background 0.15s, color 0.15s;
-}
+.sidebar-nav { padding: 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; cursor: pointer; color: #9ca3af; font-size: 14px; font-weight: 500; border: none; background: none; width: 100%; text-align: left; transition: background 0.15s, color 0.15s; }
 .nav-item:hover { background: rgba(255,255,255,0.06); color: #e5e7eb; }
 .nav-item.active { background: var(--blue); color: #fff; }
 .nav-icon { font-size: 17px; width: 22px; text-align: center; }
 .sidebar-footer { padding: 12px 20px 0; border-top: 1px solid rgba(255,255,255,0.08); color: #4b5563; font-size: 11px; }
 
-/* MAIN */
-.main { padding: 20px 16px 80px; max-width: 600px; margin: 0 auto; }
+/* ── SIDEBAR STATS ── */
+.sidebar-stats { padding: 12px 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sb-stats-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #6b7280; margin-bottom: 8px; }
+.sb-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sb-stat { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 7px 8px; }
+.sb-stat.sb-stat-full { grid-column: 1/-1; }
+.sb-stat-val { font-size: 13px; font-weight: 700; color: #e5e7eb; line-height: 1.1; }
+.sb-stat-lbl { font-size: 9px; color: #6b7280; margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
+.sb-fuel-block { margin-top: 8px; padding: 8px 10px; background: rgba(255,255,255,0.04); border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); }
+.sb-fuel-title { font-size: 10px; font-weight: 700; color: #9ca3af; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.sb-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot-benz { background: #4a7fa5; }
+.dot-gpl  { background: #4a9680; }
+.sidebar-user-info { padding: 14px 20px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+.sidebar-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-username { font-size: 14px; font-weight: 600; color: #e5e7eb; }
+.sidebar-usercap { font-size: 11px; color: #6b7280; }
+.cloud-badge { font-size: 10px; background: #1a3a2a; color: #4ade80; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+
+/* ═══ MAIN ═══ */
+.main { padding: 20px 16px calc(80px + env(safe-area-inset-bottom)); max-width: 600px; margin: 0 auto; }
 .page { display: none; }
 .page.active { display: block; }
-.page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
-.page-sub { font-size: 13px; color: var(--text2); margin-bottom: 22px; }
+.page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 3px; }
+.page-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
 
-/* STAT CARDS */
+/* CARDS */
 .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
 .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
 .card-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.5; }
 .card-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.icon-blue { background: var(--blue-light); }
-.icon-orange { background: var(--orange-light); }
-.icon-green { background: var(--green-light); }
-.icon-purple { background: var(--purple-light); }
-.card-value { font-size: 22px; font-weight: 800; letter-spacing: -0.8px; line-height: 1; margin-bottom: 4px; }
-.card-sub { font-size: 12px; color: var(--text2); }
-.card-trend-up { font-size: 12px; color: var(--red); font-weight: 600; margin-top: 5px; }
-.card-trend-down { font-size: 12px; color: var(--green); font-weight: 600; margin-top: 5px; }
+.icon-blue { background: var(--blue-light); } .icon-orange { background: var(--orange-light); }
+.icon-green { background: var(--green-light); } .icon-purple { background: var(--purple-light); }
+.card-value { font-size: 20px; font-weight: 800; letter-spacing: -0.8px; line-height: 1; margin-bottom: 4px; }
+.card-sub { font-size: 11px; color: var(--text2); }
+.card-trend-up { font-size: 11px; color: var(--red); font-weight: 600; margin-top: 5px; }
+.card-trend-down { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 5px; }
 
-/* CHART CARDS */
+/* CHART */
 .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
-.chart-card-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+.chart-card-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+.chart-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+.badge-benz { background: var(--blue-light); color: var(--blue); }
+.badge-gpl { background: var(--green-light); color: var(--green); }
 .donut-wrap { display: flex; flex-direction: column; align-items: center; }
-.donut-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; justify-content: center; }
-.legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; }
+.donut-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; justify-content: center; }
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 canvas { max-height: 200px; }
+
+/* ═══ MOBILE TWEAKS ═══ */
+input, select, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.field input, .field select, .wiz-field input { font-size: 16px !important; } /* previene zoom iOS su focus */
+@media (max-width: 360px) {
+  .cards-grid { grid-template-columns: 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .fuel-type-grid { grid-template-columns: 1fr; }
+  .card-value { font-size: 18px; }
+}
+
+/* FUEL SWITCHER */
+.fuel-switcher { display: flex; background: var(--bg); border-radius: 12px; padding: 3px; gap: 3px; margin-bottom: 14px; }
+.fuel-sw-btn { flex: 1; padding: 9px 8px; border-radius: 10px; border: none; background: transparent; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.2s; }
+.fuel-sw-btn.active-benz { background: var(--surface); color: var(--blue); box-shadow: 0 1px 6px rgba(30,45,61,0.1); }
+.fuel-sw-btn.active-gpl { background: var(--surface); color: var(--green); box-shadow: 0 1px 6px rgba(30,45,61,0.1); }
 
 /* FORM */
 .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
 .form-section-title { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
-.field { margin-bottom: 14px; }
-.field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
-.field input, .field select {
-  width: 100%; padding: 12px 14px;
-  border: 1.5px solid var(--border); border-radius: 10px;
-  font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text);
-  background: var(--bg); outline: none; transition: border-color 0.2s;
-}
-.field input:focus, .field select:focus { border-color: var(--blue); background: #fff; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.btn-primary {
-  width: 100%; padding: 14px; background: var(--blue); color: #fff;
-  border: none; border-radius: 10px;
-  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: opacity 0.15s, transform 0.1s;
-}
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+.field input, .field select { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Inter',sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
+.field input:focus { border-color: var(--blue); background: #fff; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.litri-auto-box { background: var(--blue-light); border: 1.5px solid var(--blue-mid); border-radius: 10px; padding: 11px 13px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.litri-auto-box.gpl-mode { background: var(--green-light); border-color: #a0d4c4; }
+.litri-auto-label { font-size: 12px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 5px; }
+.litri-auto-box.gpl-mode .litri-auto-label { color: var(--green); }
+.litri-badge { font-size: 9px; font-weight: 700; background: var(--blue); color: #fff; padding: 2px 6px; border-radius: 4px; }
+.litri-auto-box.gpl-mode .litri-badge { background: var(--green); }
+.litri-auto-value { font-size: 16px; font-weight: 800; color: var(--blue); }
+.litri-auto-box.gpl-mode .litri-auto-value { color: var(--green); }
+.btn-primary { width: 100%; padding: 13px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-family: 'Inter',sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+.btn-primary.gpl { background: var(--green); }
 .btn-primary:hover { opacity: 0.92; }
 .btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* CHART STATS */
+.chart-stats { display: flex; gap: 8px; margin-top: 10px; }
+.chart-stat { flex: 1; background: var(--bg); border-radius: 8px; padding: 8px 6px; text-align: center; }
+.chart-stat-val { font-size: 13px; font-weight: 700; color: var(--text); }
+.chart-stat-lbl { font-size: 10px; color: var(--text2); margin-top: 1px; }
 
 /* STORICO */
-.storico-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.storico-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
 .storico-info { font-size: 13px; color: var(--text2); font-weight: 500; }
-.toolbar-actions { display: flex; gap: 8px; }
-.btn-sm {
-  font-size: 12px; font-weight: 600; padding: 7px 12px;
-  border-radius: 8px; border: 1.5px solid var(--border);
-  background: var(--surface); cursor: pointer; color: var(--text2);
-  transition: all 0.15s;
-}
+.toolbar-actions { display: flex; gap: 7px; }
+.btn-sm { font-size: 11px; font-weight: 600; padding: 7px 11px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; }
 .btn-sm:hover { border-color: var(--blue); color: var(--blue); }
 .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
 .btn-sm.success { color: var(--green); border-color: var(--green); }
-
 .entry-list { display: flex; flex-direction: column; gap: 10px; }
-.entry-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.entry-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px; display: flex; align-items: center; gap: 11px; }
+.entry-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
 .entry-body { flex: 1; min-width: 0; }
-.entry-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-.entry-meta { font-size: 12px; color: var(--text2); }
-.entry-consumi { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 3px; }
+.entry-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.entry-meta { font-size: 11px; color: var(--text2); }
+.entry-consumi { font-size: 10px; color: var(--green); font-weight: 600; margin-top: 3px; }
 .entry-right { text-align: right; flex-shrink: 0; }
-.entry-cost { font-size: 15px; font-weight: 700; }
-.entry-delete { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; padding: 4px; border-radius: 6px; transition: color 0.15s; flex-shrink: 0; }
+.entry-cost { font-size: 14px; font-weight: 700; }
+.entry-liters { font-size: 10px; color: var(--text2); margin-top: 1px; }
+.entry-delete { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 15px; padding: 4px; border-radius: 6px; flex-shrink: 0; }
 .entry-delete:hover { color: var(--red); }
 .empty-state { text-align: center; padding: 48px 20px; color: var(--text3); }
 .empty-state .es-icon { font-size: 40px; margin-bottom: 10px; }
 .empty-state .es-text { font-size: 14px; }
 
+/* MIGRAZIONE */
+.migrate-box { background: #fff8e1; border: 1.5px solid #ffca28; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.migrate-box h3 { font-size: 14px; font-weight: 700; color: #795548; margin-bottom: 8px; }
+.migrate-box p { font-size: 12px; color: #6d4c41; line-height: 1.6; margin-bottom: 12px; }
+
 /* TOAST */
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: #111827; color: #fff;
-  font-size: 13px; font-weight: 600;
-  padding: 12px 22px; border-radius: 50px;
-  z-index: 200; white-space: nowrap;
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #111827; color: #fff; font-size: 13px; font-weight: 600; padding: 12px 22px; border-radius: 50px; z-index: 600; white-space: nowrap; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
 .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
+<div class="sync-bar" id="sync-bar"></div>
+<div class="offline-banner" id="offline-banner">⚠️ Sei offline — i dati verranno sincronizzati quando torni online</div>
+
+<!-- WIZARD -->
+<div id="wizard-overlay">
+  <div class="wizard-box">
+    <div class="wizard-hero">
+      <span class="wh-icon">🚗</span>
+      <h2>Benvenuta in CarLog</h2>
+      <p>Configurazione rapida in 4 passi</p>
+      <div class="wizard-progress">
+        <div class="wiz-dot active" id="wd-0"></div>
+        <div class="wiz-dot" id="wd-1"></div>
+        <div class="wiz-dot" id="wd-2"></div>
+        <div class="wiz-dot" id="wd-3"></div>
+      </div>
+    </div>
+    <div class="wizard-body">
+      <!-- Step 0a: scelta login/registra -->
+      <div class="wiz-step active" id="wiz-step-0a">
+        <div style="display:flex;flex-direction:column;gap:12px;padding:8px 0 12px;">
+          <button onclick="showWizLogin()" style="width:100%;padding:16px;border-radius:14px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">🔑 Accedi<span style="font-size:12px;font-weight:400;opacity:0.85;">— ho già un codice</span></button>
+          <button onclick="showWizRegister()" style="width:100%;padding:16px;border-radius:14px;border:2px solid var(--blue);background:transparent;color:var(--blue);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">✨ Crea account<span style="font-size:12px;font-weight:400;opacity:0.75;">— sono nuovo</span></button>
+        </div>
+      </div>
+      <!-- Step 0b: inserisci codice (login) -->
+      <div class="wiz-step" id="wiz-step-0b">
+        <div class="wiz-step-label">Accedi — inserisci il tuo codice</div>
+        <div class="wiz-field">
+          <label>Il tuo codice utente</label>
+          <input type="text" id="wiz-code-login" placeholder="es. roberto2024" autocapitalize="none" autocorrect="off" spellcheck="false">
+          <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;">Inserisci il codice scelto durante la registrazione. 🔑</div>
+        </div>
+        <div id="wiz-login-status" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;"></div>
+      </div>
+      <!-- Step 0c: scegli codice (registrazione) -->
+      <div class="wiz-step" id="wiz-step-0c">
+        <div class="wiz-step-label">Nuovo account — scegli un codice</div>
+        <div class="wiz-field">
+          <label>Scegli un codice personale</label>
+          <input type="text" id="wiz-code-register" placeholder="es. rebecca2024" autocapitalize="none" autocorrect="off" spellcheck="false">
+          <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;">Solo lettere, numeri e trattini. Usalo su qualsiasi telefono per accedere ai tuoi dati. 🔑</div>
+        </div>
+        <div id="wiz-register-status" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;"></div>
+      </div>
+      <div class="wiz-step" id="wiz-step-1">
+        <div class="wiz-step-label">Passo 2 di 4 — Il tuo profilo</div>
+        <div class="wiz-field"><label>Nome</label><input type="text" id="wiz-nome" placeholder="es. Rebecca"></div>
+        <div class="wiz-field"><label>Cognome</label><input type="text" id="wiz-cognome" placeholder="es. Troiani"></div>
+      </div>
+      <div class="wiz-step" id="wiz-step-2">
+        <div class="wiz-step-label">Passo 3 di 4 — La tua macchina</div>
+        <div class="wiz-field"><label>Tipo di macchina</label><input type="text" id="wiz-macchina" placeholder="es. Toyota Aygo 2022"></div>
+        <div class="wiz-field">
+          <label>Tipo di rifornimento</label>
+          <div class="fuel-type-grid">
+            <div class="fuel-type-opt" id="ft-benz" onclick="selectFuelType('Benzina')"><span class="ft-icon">⛽</span><span class="ft-name">Benzina</span><span class="ft-sub">Solo benzina</span></div>
+            <div class="fuel-type-opt" id="ft-gpl" onclick="selectFuelType('GPL')"><span class="ft-icon">🟢</span><span class="ft-name">GPL</span><span class="ft-sub">Solo GPL</span></div>
+            <div class="fuel-type-opt" id="ft-both" onclick="selectFuelType('Entrambi')"><span class="ft-icon">⛽🟢</span><span class="ft-name">Entrambi</span><span class="ft-sub">Benzina+GPL</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="wiz-step" id="wiz-step-3">
+        <div class="wiz-step-label">Passo 4 di 4 — Conferma</div>
+        <div style="background:var(--bg);border-radius:14px;padding:16px;margin-bottom:12px;">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">Riepilogo:</div>
+          <div id="wiz-summary" style="font-size:14px;color:var(--text);line-height:1.9;font-weight:500;"></div>
+        </div>
+        <p style="font-size:12px;color:var(--text3);line-height:1.6;">I dati saranno salvati su <strong>cloud Supabase</strong> — accessibili da qualsiasi dispositivo con lo stesso codice. ☁️🔑</p>
+      </div>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn-wiz-back" id="wiz-back-btn" onclick="wizBack()" style="display:none">← Indietro</button>
+      <button class="btn-wiz-next" id="wiz-next-btn" onclick="wizNext()">Avanti →</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOPBAR -->
 <div class="topbar">
-  <button class="topbar-menu" onclick="toggleSidebar()">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="topbar-menu" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
   <div class="topbar-logo">Rebecca <span>CarLog</span></div>
-  <div class="car-photo-btn" onclick="document.getElementById('carPhotoInput').click()" title="Foto macchina">
-    <img id="carPhotoImg" alt="">
-    <span id="carPhotoIcon"><img id="aygoIcon" style="width:100%;height:100%;object-fit:contain;padding:4px;" alt="Aygo"></span>
+  <div class="topbar-user">
+    <div class="user-avatar" id="topbar-avatar">—</div>
+    <div class="user-name" id="topbar-name">—</div>
+    <div class="car-photo-btn" onclick="document.getElementById('carPhotoInput').click()">
+      <img id="carPhotoImg" alt="">
+      <span id="carPhotoIcon"><img id="aygoIcon" style="width:100%;height:100%;object-fit:contain;padding:4px;" alt="Aygo"></span>
+    </div>
   </div>
   <input type="file" id="carPhotoInput" accept="image/*" style="display:none" onchange="loadCarPhoto(event)">
 </div>
 
-<!-- SIDEBAR OVERLAY -->
-<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
-
 <!-- SIDEBAR -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-brand">
@@ -328,24 +395,55 @@ canvas { max-height: 200px; }
     </div>
     <button class="sidebar-close" onclick="closeSidebar()">×</button>
   </div>
+  <div class="sidebar-user-info">
+    <div class="sidebar-avatar" id="sidebar-avatar">—</div>
+    <div>
+      <div class="sidebar-username" id="sidebar-username">—</div>
+      <div class="sidebar-usercap" id="sidebar-usercap">—</div>
+      <div class="cloud-badge" style="margin-top:4px">☁️ Cloud Sync</div>
+    </div>
+  </div>
+  <!-- SIDEBAR STATS -->
+  <div class="sidebar-stats" id="sidebar-stats">
+    <div class="sb-stats-title">📊 Riepilogo</div>
+    <div class="sb-stats-grid" id="sb-stats-global">
+      <div class="sb-stat"><div class="sb-stat-val" id="sb-totale-speso">—</div><div class="sb-stat-lbl">Totale speso</div></div>
+      <div class="sb-stat"><div class="sb-stat-val" id="sb-km-totali">—</div><div class="sb-stat-lbl">Km percorsi</div></div>
+      <div class="sb-stat sb-stat-full"><div class="sb-stat-val" id="sb-media-kml">—</div><div class="sb-stat-lbl">Media km/L (globale)</div></div>
+    </div>
+    <!-- Riepilogo Benzina (visibile se Entrambi o Benzina) -->
+    <div class="sb-fuel-block" id="sb-block-benz" style="display:none">
+      <div class="sb-fuel-title"><span class="sb-dot dot-benz"></span>⛽ Benzina</div>
+      <div class="sb-stats-grid">
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-benz-speso">—</div><div class="sb-stat-lbl">Speso</div></div>
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-benz-litri">—</div><div class="sb-stat-lbl">Litri tot.</div></div>
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-benz-kml">—</div><div class="sb-stat-lbl">Media km/L</div></div>
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-benz-ppL">—</div><div class="sb-stat-lbl">€/L medio</div></div>
+      </div>
+    </div>
+    <!-- Riepilogo GPL (visibile se Entrambi o GPL) -->
+    <div class="sb-fuel-block" id="sb-block-gpl" style="display:none">
+      <div class="sb-fuel-title"><span class="sb-dot dot-gpl"></span>🟢 GPL</div>
+      <div class="sb-stats-grid">
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-gpl-speso">—</div><div class="sb-stat-lbl">Speso</div></div>
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-gpl-litri">—</div><div class="sb-stat-lbl">Litri tot.</div></div>
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-gpl-kml">—</div><div class="sb-stat-lbl">Media km/L</div></div>
+        <div class="sb-stat"><div class="sb-stat-val" id="sb-gpl-ppL">—</div><div class="sb-stat-lbl">€/L medio</div></div>
+      </div>
+    </div>
+  </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" onclick="goTo('dashboard',this)">
-      <span class="nav-icon">📊</span> Dashboard
-    </button>
-    <button class="nav-item" onclick="goTo('benzina',this)">
-      <span class="nav-icon">⛽</span> Benzina
-    </button>
-    <button class="nav-item" onclick="goTo('manutenzione',this)">
-      <span class="nav-icon">🔧</span> Manutenzione
-    </button>
-    <button class="nav-item" onclick="goTo('storico',this)">
-      <span class="nav-icon">📋</span> Storico
-    </button>
-    <button class="nav-item" onclick="goTo('backup',this)">
-      <span class="nav-icon">💾</span> Backup
-    </button>
+    <button class="nav-item active" onclick="goTo('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="goTo('rifornimento',this)"><span class="nav-icon">⛽</span> Rifornimento</button>
+    <button class="nav-item" onclick="goTo('manutenzione',this)"><span class="nav-icon">🔧</span> Manutenzione</button>
+    <button class="nav-item" onclick="goTo('storico',this)"><span class="nav-icon">📋</span> Storico</button>
+    <button class="nav-item" onclick="goTo('impostazioni',this)"><span class="nav-icon">⚙️</span> Impostazioni</button>
+    <button class="nav-item" onclick="goTo('backup',this)"><span class="nav-icon">💾</span> Backup</button>
   </nav>
-  <div class="sidebar-footer">Registro Spese Veicolo</div>
+  <div class="sidebar-footer">
+    <div style="margin-bottom:8px;">Dati salvati su cloud ☁️</div>
+    <button onclick="logout()" style="width:100%;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;color:#ef4444;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">🚪 Esci / Cambia Account</button>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -354,100 +452,80 @@ canvas { max-height: 200px; }
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="page-title">Dashboard</div>
-    <div class="page-sub">Panoramica delle spese e statistiche veicolo</div>
-
+    <div class="page-sub">Panoramica spese e statistiche veicolo</div>
     <div class="cards-grid">
       <div class="card">
-        <div class="card-top">
-          <div class="card-label">Questo<br>Mese</div>
-          <div class="card-icon icon-blue">💳</div>
-        </div>
+        <div class="card-top"><div class="card-label">Questo<br>Mese</div><div class="card-icon icon-blue">💳</div></div>
         <div class="card-value" id="d-mese">€ 0</div>
         <div class="card-sub">Spesa totale</div>
         <div id="d-mese-trend" style="display:none"></div>
       </div>
       <div class="card">
-        <div class="card-top">
-          <div class="card-label">Totale<br>Speso</div>
-          <div class="card-icon icon-orange">📈</div>
-        </div>
+        <div class="card-top"><div class="card-label">Totale<br>Speso</div><div class="card-icon icon-orange">📈</div></div>
         <div class="card-value" id="d-totale">€ 0</div>
         <div class="card-sub" id="d-entries">0 registrazioni</div>
       </div>
       <div class="card">
-        <div class="card-top">
-          <div class="card-label">Consumo<br>Medio</div>
-          <div class="card-icon icon-green">⛽</div>
-        </div>
+        <div class="card-top"><div class="card-label">Consumo<br>Medio</div><div class="card-icon icon-green">⛽</div></div>
         <div class="card-value" id="d-consumo">—</div>
         <div class="card-sub" id="d-litri-tot">— L totali</div>
       </div>
       <div class="card">
-        <div class="card-top">
-          <div class="card-label">Costo<br>per Km</div>
-          <div class="card-icon icon-purple">🏎️</div>
-        </div>
+        <div class="card-top"><div class="card-label">Costo<br>per Km</div><div class="card-icon icon-purple">🏎️</div></div>
         <div class="card-value" id="d-costkm">—</div>
         <div class="card-sub" id="d-km-tot">— km percorsi</div>
       </div>
     </div>
-
-    <div class="chart-card">
-      <div class="chart-card-title">Spese Mensili</div>
-      <canvas id="chartMensile"></canvas>
-    </div>
-
+    <div class="chart-card"><div class="chart-card-title">Spese Mensili</div><canvas id="chartMensile"></canvas></div>
     <div class="chart-card">
       <div class="chart-card-title">Ripartizione Spese</div>
-      <div class="donut-wrap">
-        <canvas id="chartDonut" style="max-height:190px;max-width:190px;"></canvas>
-        <div class="donut-legend" id="donut-legend"></div>
-      </div>
+      <div class="donut-wrap"><canvas id="chartDonut" style="max-height:190px;max-width:190px;"></canvas><div class="donut-legend" id="donut-legend"></div></div>
     </div>
-
     <div class="cards-grid">
       <div class="card">
-        <div class="card-top">
-          <div class="card-label">Rifornimenti<br>Benzina</div>
-          <div class="card-icon icon-blue">⛽</div>
-        </div>
-        <div class="card-value" id="d-count-fuel">0</div>
-        <div class="card-sub" id="d-sum-fuel">€ 0</div>
+        <div class="card-top"><div class="card-label">Rifornimenti</div><div class="card-icon icon-blue">⛽</div></div>
+        <div class="card-value" id="d-count-fuel">0</div><div class="card-sub" id="d-sum-fuel">€ 0</div>
       </div>
       <div class="card">
-        <div class="card-top">
-          <div class="card-label">Spese<br>Manutenzione</div>
-          <div class="card-icon icon-green">🔧</div>
-        </div>
-        <div class="card-value" id="d-count-man">0</div>
-        <div class="card-sub" id="d-sum-man">€ 0</div>
+        <div class="card-top"><div class="card-label">Manutenzione</div><div class="card-icon icon-green">🔧</div></div>
+        <div class="card-value" id="d-count-man">0</div><div class="card-sub" id="d-sum-man">€ 0</div>
       </div>
     </div>
   </div>
 
-  <!-- BENZINA -->
-  <div class="page" id="page-benzina">
-    <div class="page-title">Benzina</div>
-    <div class="page-sub">Registra un nuovo rifornimento</div>
+  <!-- RIFORNIMENTO -->
+  <div class="page" id="page-rifornimento">
+    <div class="page-title">Rifornimento</div>
+    <div class="page-sub" id="rif-sub">Registra un nuovo rifornimento</div>
+    <div id="fuel-switcher-wrap" style="display:none">
+      <div class="fuel-switcher">
+        <button class="fuel-sw-btn active-benz" id="sw-benz" onclick="switchFuel('Benzina')">⛽ Benzina</button>
+        <button class="fuel-sw-btn" id="sw-gpl" onclick="switchFuel('GPL')">🟢 GPL</button>
+      </div>
+    </div>
     <div class="form-card">
-      <div class="form-section-title">Nuovo Rifornimento</div>
+      <div class="form-section-title" id="rif-form-title">Nuovo Rifornimento Benzina</div>
       <div class="field-row">
-        <div class="field"><label>Km attuali</label><input type="number" id="f-km" placeholder="es. 45820"></div>
         <div class="field"><label>Data</label><input type="date" id="f-date"></div>
+        <div class="field"><label>Km attuali</label><input type="number" id="f-km" placeholder="es. 24350"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Importo (€)</label><input type="number" id="f-cost" placeholder="es. 65.00" step="0.01"></div>
-        <div class="field"><label>Litri</label><input type="number" id="f-liters" placeholder="es. 38.5" step="0.01"></div>
+        <div class="field"><label>Costo totale (€)</label><input type="number" id="f-cost" placeholder="es. 45.00" step="0.01" oninput="calcLitri()"></div>
+        <div class="field"><label>Prezzo al litro (€/L)</label><input type="number" id="f-ppl" placeholder="es. 1.789" step="0.001" oninput="calcLitri()"></div>
       </div>
-      <button class="btn-primary" onclick="saveFuel()">Aggiungi Rifornimento</button>
+      <div class="litri-auto-box" id="litri-box">
+        <div class="litri-auto-label">⚡ Litri calcolati <span class="litri-badge">AUTO</span></div>
+        <div class="litri-auto-value" id="litri-display">— L</div>
+      </div>
+      <button class="btn-primary" id="rif-save-btn" onclick="saveFuel()">Salva Rifornimento</button>
     </div>
-    <div class="chart-card">
-      <div class="chart-card-title">Prezzo €/Litro nel tempo</div>
-      <canvas id="chartPrezzoL"></canvas>
+    <div id="charts-benz-wrap">
+      <div class="chart-card"><div class="chart-card-title">Prezzo €/L <span class="chart-badge badge-benz">⛽ Benzina</span></div><canvas id="chartPrezzoL"></canvas><div class="chart-stats" id="stats-benz-ppl"></div></div>
+      <div class="chart-card"><div class="chart-card-title">Consumi km/L <span class="chart-badge badge-benz">⛽ Benzina</span></div><canvas id="chartKmL"></canvas><div class="chart-stats" id="stats-benz-kml"></div></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-card-title">Consumi km/L nel tempo</div>
-      <canvas id="chartKmL"></canvas>
+    <div id="charts-gpl-wrap" style="display:none">
+      <div class="chart-card"><div class="chart-card-title">Prezzo €/L <span class="chart-badge badge-gpl">🟢 GPL</span></div><canvas id="chartPrezzoGPL"></canvas><div class="chart-stats" id="stats-gpl-ppl"></div></div>
+      <div class="chart-card"><div class="chart-card-title">Consumi km/L <span class="chart-badge badge-gpl">🟢 GPL</span></div><canvas id="chartKmGPL"></canvas><div class="chart-stats" id="stats-gpl-kml"></div></div>
     </div>
   </div>
 
@@ -459,8 +537,8 @@ canvas { max-height: 200px; }
       <div class="form-section-title">Nuova Spesa</div>
       <div class="field"><label>Descrizione</label><input type="text" id="m-desc" placeholder="es. Tagliando, Gomme, Autolavaggio..."></div>
       <div class="field-row">
-        <div class="field"><label>Km attuali</label><input type="number" id="m-km" placeholder="es. 45820"></div>
         <div class="field"><label>Data</label><input type="date" id="m-date"></div>
+        <div class="field"><label>Km attuali</label><input type="number" id="m-km" placeholder="es. 24350"></div>
       </div>
       <div class="field"><label>Importo (€)</label><input type="number" id="m-cost" placeholder="es. 120.00" step="0.01"></div>
       <button class="btn-primary" onclick="saveMaint()">Aggiungi Spesa</button>
@@ -474,343 +552,783 @@ canvas { max-height: 200px; }
     <div class="storico-toolbar">
       <div class="storico-info" id="storico-count">0 registrazioni</div>
       <div class="toolbar-actions">
-        <button class="btn-sm success" onclick="exportData()">⬇ Backup</button>
-        <button class="btn-sm" onclick="document.getElementById('importFile').click()">⬆ Ripristina</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        <button class="btn-sm success" onclick="exportData()">⬇ Backup JSON</button>
         <button class="btn-sm danger" onclick="clearAll()">🗑</button>
       </div>
     </div>
     <div class="entry-list" id="entry-list"></div>
   </div>
 
+  <!-- IMPOSTAZIONI -->
+  <div class="page" id="page-impostazioni">
+    <div class="page-title">Impostazioni</div>
+    <div class="page-sub">Modifica il tuo profilo</div>
+    <div class="form-card">
+      <div class="form-section-title">Profilo Utente</div>
+      <div class="field-row">
+        <div class="field"><label>Nome</label><input type="text" id="s-nome" placeholder="Nome"></div>
+        <div class="field"><label>Cognome</label><input type="text" id="s-cognome" placeholder="Cognome"></div>
+      </div>
+      <div class="field"><label>Tipo di macchina</label><input type="text" id="s-macchina" placeholder="es. Toyota Aygo 2022"></div>
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">Tipo di Rifornimento</div>
+      <div class="fuel-type-grid">
+        <div class="fuel-type-opt" id="s-ft-benz" onclick="settingsFuelType('Benzina')"><span class="ft-icon">⛽</span><span class="ft-name">Benzina</span><span class="ft-sub">Solo benzina</span></div>
+        <div class="fuel-type-opt" id="s-ft-gpl" onclick="settingsFuelType('GPL')"><span class="ft-icon">🟢</span><span class="ft-name">GPL</span><span class="ft-sub">Solo GPL</span></div>
+        <div class="fuel-type-opt" id="s-ft-both" onclick="settingsFuelType('Entrambi')"><span class="ft-icon">⛽🟢</span><span class="ft-name">Entrambi</span><span class="ft-sub">Benzina+GPL</span></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveSettings()">Salva Impostazioni</button>
+    <div class="form-card" style="margin-top:12px;">
+      <div class="form-section-title">🔑 Codice Accesso</div>
+      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);font-family:monospace;letter-spacing:.05em;" id="s-codice-display">—</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">Usa questo codice su un altro dispositivo per accedere ai tuoi dati</div>
+        </div>
+        <button onclick="copyCode()" style="background:var(--blue-light);border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;white-space:nowrap;">📋 Copia</button>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3);line-height:1.5;">⚠️ Se cambi codice su questo dispositivo perdi l'accesso ai dati esistenti (a meno che non usi lo stesso codice dell'altro dispositivo).</div>
+    </div>
+    <button onclick="logout()" style="margin-top:12px;width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:#ef4444;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">🚪 Esci / Cambia Account</button>
+  </div>
+
   <!-- BACKUP -->
   <div class="page" id="page-backup">
     <div class="page-title">Backup</div>
-    <div class="page-sub">Salva e ripristina i tuoi dati</div>
+    <div class="page-sub">I dati sono salvati su cloud. Puoi fare un backup locale.</div>
+
+    <!-- MIGRAZIONE da localStorage -->
+    <div class="migrate-box" id="migrate-box" style="display:none">
+      <h3>📦 Dati locali trovati!</h3>
+      <p>Sono stati trovati dati salvati localmente sul dispositivo (vecchia versione). Vuoi importarli su Supabase?</p>
+      <button class="btn-primary" onclick="migrateFromLocalStorage()" style="background:#795548">⬆ Migra su Cloud</button>
+    </div>
+
     <div class="form-card">
-      <div class="form-section-title">Esporta Dati</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
-        Scarica un file <strong>.json</strong> con tutte le registrazioni. Salvalo su iCloud o Google Drive come backup sicuro.
-      </p>
+      <div class="form-section-title">Esporta Backup JSON</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Scarica tutti i dati da Supabase come file <strong>.json</strong>. Utile come copia di sicurezza aggiuntiva.</p>
       <button class="btn-primary" onclick="exportData()">⬇ Scarica Backup</button>
     </div>
+
     <div class="form-card">
-      <div class="form-section-title">Ripristina Dati</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">
-        Carica un backup precedente. <strong>Attenzione:</strong> i dati attuali verranno sostituiti.
-      </p>
-      <button class="btn-primary" style="background:#6b7280;" onclick="document.getElementById('importFile2').click()">⬆ Carica Backup</button>
-      <input type="file" id="importFile2" accept=".json" style="display:none" onchange="importData(event)">
+      <div class="form-section-title">Importa Backup JSON su Supabase</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Carica un file .json esportato in precedenza (anche dalla vecchia versione offline). I dati verranno salvati su cloud.</p>
+      <button class="btn-primary" style="background:#6b7280;" onclick="document.getElementById('importFileBtn').click()">⬆ Importa Backup</button>
+      <input type="file" id="importFileBtn" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+
+    <div class="form-card" style="background:#e8f5e9;border-color:#a5d6a7;">
+      <div class="form-section-title" style="color:#2e7d32">☁️ Stato Cloud</div>
+      <p style="font-size:13px;color:#1b5e20;line-height:1.6;">Device ID: <code style="background:#c8e6c9;padding:2px 6px;border-radius:4px;font-size:11px;" id="device-id-display">—</code></p>
+      <p style="font-size:12px;color:#388e3c;margin-top:8px;">I dati sono accessibili da qualsiasi dispositivo con questo ID. Tienilo in un posto sicuro per trasferire i dati.</p>
     </div>
   </div>
 
-</div>
+</div><!-- /main -->
 
 <div class="toast" id="toast"></div>
 
 <script>
-let db = JSON.parse(localStorage.getItem('carlog_v3')) || [];
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let db = [];
+let profile = { nome:'', cognome:'', macchina:'', tipoRifornimento:'Benzina' };
 let charts = {};
+let currentFuel = 'Benzina';
+let isSyncing = false;
 
-// Set today's date
-['f-date','m-date'].forEach(id => {
+document.getElementById('device-id-display').textContent = DEVICE_ID;
+
+// ═══════════════════════════════════════════════
+// SUPABASE HELPERS
+// ═══════════════════════════════════════════════
+function startSync() { isSyncing = true; document.getElementById('sync-bar').classList.add('show'); }
+function endSync()   { isSyncing = false; document.getElementById('sync-bar').classList.remove('show'); }
+
+async function loadFromSupabase() {
+  startSync();
+  try {
+    // Carica profilo
+    const { data: prof } = await supabase.from('profiles').select('*').eq('device_id', DEVICE_ID).single();
+    if (prof) {
+      profile = {
+        nome: prof.nome || '',
+        cognome: prof.cognome || '',
+        macchina: prof.macchina || '',
+        tipoRifornimento: prof.tipo_rifornimento || 'Benzina'
+      };
+    }
+    // Carica entries
+    const { data: rows, error } = await supabase.from('entries').select('*').eq('device_id', DEVICE_ID).order('date', { ascending: true });
+    if (error) throw error;
+    db = (rows || []).map(r => ({
+      id: r.id,
+      type: r.type,
+      fuelType: r.fuel_type || 'Benzina',
+      km: parseFloat(r.km),
+      cost: parseFloat(r.cost),
+      liters: parseFloat(r.liters) || 0,
+      pricePerLiter: parseFloat(r.price_per_liter) || 0,
+      date: r.date,
+      desc: r.descr || r.type
+    }));
+    applyProfile();
+    renderDashboard();
+    renderStorico();
+    renderFuelCharts();
+  } catch(e) {
+    console.error('Load error:', e);
+    showToast('⚠ Errore caricamento dati');
+  }
+  endSync();
+}
+
+async function saveEntryToSupabase(entry) {
+  startSync();
+  try {
+    const { error } = await supabase.from('entries').upsert({
+      id: entry.id,
+      device_id: DEVICE_ID,
+      type: entry.type,
+      fuel_type: entry.fuelType || null,
+      km: entry.km,
+      cost: entry.cost,
+      liters: entry.liters || 0,
+      price_per_liter: entry.pricePerLiter || 0,
+      date: entry.date,
+      descr: entry.desc || ''
+    });
+    if (error) throw error;
+  } catch(e) {
+    console.error('Save error:', e);
+    showToast('⚠ Errore salvataggio — riprova');
+  }
+  endSync();
+}
+
+async function deleteEntryFromSupabase(id) {
+  startSync();
+  try {
+    const { error } = await supabase.from('entries').delete().eq('id', id).eq('device_id', DEVICE_ID);
+    if (error) throw error;
+  } catch(e) {
+    console.error('Delete error:', e);
+    showToast('⚠ Errore eliminazione');
+  }
+  endSync();
+}
+
+async function saveProfileToSupabase() {
+  startSync();
+  try {
+    const { error } = await supabase.from('profiles').upsert({
+      device_id: DEVICE_ID,
+      nome: profile.nome,
+      cognome: profile.cognome,
+      macchina: profile.macchina,
+      tipo_rifornimento: profile.tipoRifornimento,
+      updated_at: new Date().toISOString()
+    });
+    if (error) throw error;
+  } catch(e) {
+    console.error('Profile save error:', e);
+    showToast('⚠ Errore salvataggio profilo');
+  }
+  endSync();
+}
+
+// ═══════════════════════════════════════════════
+// OFFLINE DETECTION
+// ═══════════════════════════════════════════════
+window.addEventListener('online',  () => { document.getElementById('offline-banner').classList.remove('show'); loadFromSupabase(); });
+window.addEventListener('offline', () => { document.getElementById('offline-banner').classList.add('show'); });
+if (!navigator.onLine) document.getElementById('offline-banner').classList.add('show');
+
+// ═══════════════════════════════════════════════
+// WIZARD
+// ═══════════════════════════════════════════════
+// wizMode: 'choose' | 'login' | 'register'
+// wizStep: 0=scelta, 1=login/register codice, 2=nome, 3=macchina, 4=conferma
+let wizStep = 0, wizFuelSel = '', wizMode = 'choose';
+
+function showWizard() { document.getElementById('wizard-overlay').classList.add('show'); updateWizStep(); }
+function hideWizard() { document.getElementById('wizard-overlay').classList.remove('show'); }
+
+function showWizLogin() {
+  wizMode = 'login'; wizStep = 1;
+  setActiveWizStep('wiz-step-0b');
+  document.getElementById('wiz-back-btn').style.display = 'block';
+  document.getElementById('wiz-next-btn').style.display = 'block';
+  document.getElementById('wiz-next-btn').textContent = 'Accedi →';
+}
+function showWizRegister() {
+  wizMode = 'register'; wizStep = 1;
+  setActiveWizStep('wiz-step-0c');
+  document.getElementById('wiz-back-btn').style.display = 'block';
+  document.getElementById('wiz-next-btn').style.display = 'block';
+  document.getElementById('wiz-next-btn').textContent = 'Avanti →';
+}
+function setActiveWizStep(id) {
+  document.querySelectorAll('.wiz-step').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
-  if (el) el.value = new Date().toISOString().split('T')[0];
-});
-
-// NAVIGATION
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('open');
+  if (el) el.classList.add('active');
 }
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
+function updateWizStep() {
+  // Step 0 = scelta, step 1 = dati codice, step 2 = nome, step 3 = macchina, step 4 = conferma
+  const ids = ['wiz-step-0a', null, 'wiz-step-1', 'wiz-step-2', 'wiz-step-3'];
+  document.querySelectorAll('.wiz-step').forEach(s => s.classList.remove('active'));
+  const id = ids[wizStep];
+  if (id) setActiveWizStep(id);
+  document.getElementById('wiz-back-btn').style.display = wizStep > 0 ? 'block' : 'none';
+  if (wizStep === 4) document.getElementById('wiz-next-btn').textContent = '✓ Inizia';
+  else if (wizStep === 1 && wizMode === 'login') document.getElementById('wiz-next-btn').textContent = 'Accedi →';
+  else document.getElementById('wiz-next-btn').textContent = 'Avanti →';
+  // Nascondi il bottone Avanti nella schermata scelta (step 0)
+  document.getElementById('wiz-next-btn').style.display = wizStep === 0 ? 'none' : 'block';
 }
-function goTo(page, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  btn.classList.add('active');
-  closeSidebar();
-  if (page === 'dashboard') renderDashboard();
-  if (page === 'benzina') renderFuelCharts();
-  if (page === 'storico') renderStorico();
+function selectFuelType(type) {
+  wizFuelSel = type;
+  document.querySelectorAll('.fuel-type-opt[id^="ft-"]').forEach(el => el.classList.remove('sel','sel-gpl'));
+  const map = { 'Benzina':'ft-benz', 'GPL':'ft-gpl', 'Entrambi':'ft-both' };
+  const el = document.getElementById(map[type]);
+  if (el) el.classList.add(type==='GPL'?'sel-gpl':'sel');
 }
+async function wizNext() {
+  // Step 0: schermata scelta — i pulsanti chiamano showWizLogin/showWizRegister direttamente
+  if (wizStep === 0) return;
 
-// SAVE
-function save() { localStorage.setItem('carlog_v3', JSON.stringify(db)); }
-
-function saveFuel() {
-  const km     = parseFloat(document.getElementById('f-km').value);
-  const cost   = parseFloat(document.getElementById('f-cost').value);
-  const liters = parseFloat(document.getElementById('f-liters').value);
-  const date   = document.getElementById('f-date').value;
-  if (!km || !cost || !liters || !date) return showToast('⚠ Compila tutti i campi');
-  db.push({ id: Date.now(), type: 'Carburante', km, cost, liters, date,
-    pricePerLiter: cost/liters, desc: 'Benzina' });
-  db.sort((a,b) => new Date(a.date)-new Date(b.date));
-  save();
-  ['f-km','f-cost','f-liters'].forEach(id => document.getElementById(id).value = '');
-  showToast('✓ Rifornimento salvato!');
-  renderFuelCharts();
-  renderDashboard();
-}
-
-function saveMaint() {
-  const km   = parseFloat(document.getElementById('m-km').value);
-  const cost = parseFloat(document.getElementById('m-cost').value);
-  const date = document.getElementById('m-date').value;
-  const desc = document.getElementById('m-desc').value.trim();
-  if (!km || !cost || !date || !desc) return showToast('⚠ Compila tutti i campi');
-  db.push({ id: Date.now(), type: 'Manutenzione', km, cost, liters: 0, date,
-    pricePerLiter: 0, desc });
-  db.sort((a,b) => new Date(a.date)-new Date(b.date));
-  save();
-  ['m-km','m-cost','m-desc'].forEach(id => document.getElementById(id).value = '');
-  showToast('✓ Spesa salvata!');
-  renderDashboard();
-}
-
-function deleteEntry(id) {
-  db = db.filter(e => e.id !== id);
-  save(); renderStorico(); renderDashboard();
-}
-
-function clearAll() {
-  if (!confirm('Cancellare tutti i dati?')) return;
-  db = []; save(); renderStorico(); renderDashboard();
-}
-
-// CONSUMI
-function getConsumi() {
-  const fuel = db.filter(e => e.type==='Carburante').sort((a,b)=>new Date(a.date)-new Date(b.date));
-  return fuel.map((e,i) => {
-    if (i===0) return {...e, kml:null, l100:null};
-    const prev = fuel[i-1];
-    const delta = e.km - prev.km;
-    if (delta<=0 || e.liters<=0) return {...e, kml:null, l100:null};
-    return {...e, kml: delta/e.liters, l100: (e.liters/delta)*100};
-  });
-}
-
-// DASHBOARD
-function renderDashboard() {
-  const now = new Date();
-  const cy = now.getFullYear(), cm = now.getMonth();
-  const thisMonth = db.filter(e => { const d=new Date(e.date+'T12:00:00'); return d.getFullYear()===cy && d.getMonth()===cm; });
-  const lastMonth = db.filter(e => { const d=new Date(e.date+'T12:00:00'); const lm=new Date(cy,cm-1,1); return d.getFullYear()===lm.getFullYear() && d.getMonth()===lm.getMonth(); });
-
-  const sumThis  = thisMonth.reduce((s,e)=>s+e.cost,0);
-  const sumLast  = lastMonth.reduce((s,e)=>s+e.cost,0);
-  const totalCost= db.reduce((s,e)=>s+e.cost,0);
-  const totalLit = db.filter(e=>e.type==='Carburante').reduce((s,e)=>s+e.liters,0);
-
-  document.getElementById('d-mese').textContent    = '€ '+sumThis.toFixed(2);
-  document.getElementById('d-totale').textContent  = '€ '+totalCost.toFixed(2);
-  document.getElementById('d-entries').textContent = db.length+' registrazioni';
-  document.getElementById('d-litri-tot').textContent = totalLit.toFixed(1)+' L totali';
-
-  const tEl = document.getElementById('d-mese-trend');
-  if (sumLast>0) {
-    const pct = ((sumThis-sumLast)/sumLast*100).toFixed(1);
-    tEl.style.display='block';
-    tEl.textContent=(pct>0?'↑ ':'↓ ')+Math.abs(pct)+'% vs mese scorso';
-    tEl.className=pct>0?'card-trend-up':'card-trend-down';
-  } else { tEl.style.display='none'; }
-
-  const consumi = getConsumi().filter(e=>e.kml!==null);
-  if (consumi.length>0) {
-    const avgL100=consumi.reduce((s,e)=>s+e.l100,0)/consumi.length;
-    document.getElementById('d-consumo').textContent=avgL100.toFixed(1)+' L/100km';
-  }
-
-  const kms = db.map(e=>e.km);
-  if (kms.length>=2) {
-    const totKm=Math.max(...kms)-Math.min(...kms);
-    document.getElementById('d-km-tot').textContent=totKm.toLocaleString('it')+' km percorsi';
-    if (totKm>0) document.getElementById('d-costkm').textContent='€ '+(totalCost/totKm).toFixed(3);
-  }
-
-  const fuelE=db.filter(e=>e.type==='Carburante');
-  const manE =db.filter(e=>e.type==='Manutenzione');
-  document.getElementById('d-count-fuel').textContent=fuelE.length;
-  document.getElementById('d-sum-fuel').textContent='€ '+fuelE.reduce((s,e)=>s+e.cost,0).toFixed(2);
-  document.getElementById('d-count-man').textContent=manE.length;
-  document.getElementById('d-sum-man').textContent='€ '+manE.reduce((s,e)=>s+e.cost,0).toFixed(2);
-
-  renderDashboardCharts();
-}
-
-function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
-
-function renderDashboardCharts() {
-  const mFuel={}, mMan={};
-  db.forEach(e => {
-    const d=new Date(e.date+'T12:00:00');
-    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    if (e.type==='Carburante') mFuel[k]=(mFuel[k]||0)+e.cost;
-    else mMan[k]=(mMan[k]||0)+e.cost;
-  });
-  const allM=[...new Set([...Object.keys(mFuel),...Object.keys(mMan)])].sort();
-  const scX={ticks:{color:'#9ca3af',font:{size:10}},grid:{display:false}};
-  const scY={ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}};
-
-  destroyChart('chartMensile');
-  if (allM.length>0) {
-    charts['chartMensile']=new Chart(document.getElementById('chartMensile').getContext('2d'),{
-      type:'bar',
-      data:{
-        labels:allM.map(m=>{const[y,mo]=m.split('-');return`${mo}/${y.slice(2)}`;}),
-        datasets:[
-          {label:'Benzina',data:allM.map(m=>(mFuel[m]||0).toFixed(2)),backgroundColor:'#4a7fa5',borderRadius:5},
-          {label:'Manutenzione',data:allM.map(m=>(mMan[m]||0).toFixed(2)),backgroundColor:'#4a9680',borderRadius:5}
-        ]
-      },
-      options:{responsive:true,plugins:{legend:{labels:{font:{size:11},color:'#6b7280'}}},scales:{x:{...scX,stacked:true},y:{...scY,stacked:true}}}
-    });
-  }
-
-  destroyChart('chartDonut');
-  const sF=db.filter(e=>e.type==='Carburante').reduce((s,e)=>s+e.cost,0);
-  const sM=db.filter(e=>e.type==='Manutenzione').reduce((s,e)=>s+e.cost,0);
-  const legEl=document.getElementById('donut-legend');
-  if (sF>0||sM>0) {
-    charts['chartDonut']=new Chart(document.getElementById('chartDonut').getContext('2d'),{
-      type:'doughnut',
-      data:{labels:['Benzina','Manutenzione'],datasets:[{data:[sF.toFixed(2),sM.toFixed(2)],backgroundColor:['#4a7fa5','#4a9680'],borderWidth:0,hoverOffset:6}]},
-      options:{responsive:true,cutout:'65%',plugins:{legend:{display:false}}}
-    });
-    legEl.innerHTML=`
-      <div class="legend-item"><div class="legend-dot" style="background:#4a7fa5"></div>Benzina <strong>€ ${sF.toFixed(2)}</strong></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4a9680"></div>Manutenzione <strong>€ ${sM.toFixed(2)}</strong></div>`;
-  } else {
-    legEl.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0">Nessun dato ancora</div>';
-  }
-}
-
-// FUEL CHARTS
-function renderFuelCharts() {
-  const allFuel=db.filter(e=>e.type==='Carburante'&&e.pricePerLiter>0).sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const consumi=getConsumi().filter(e=>e.kml!==null);
-  const sc={x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}};
-
-  destroyChart('chartPrezzoL');
-  if (allFuel.length>0) {
-    charts['chartPrezzoL']=new Chart(document.getElementById('chartPrezzoL').getContext('2d'),{
-      type:'line',
-      data:{labels:allFuel.map(e=>new Date(e.date+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'})),
-        datasets:[{data:allFuel.map(e=>e.pricePerLiter.toFixed(3)),borderColor:'#4a7fa5',backgroundColor:'rgba(74,127,165,0.08)',tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:'#4a7fa5'}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:sc}
-    });
-  }
-
-  destroyChart('chartKmL');
-  if (consumi.length>0) {
-    charts['chartKmL']=new Chart(document.getElementById('chartKmL').getContext('2d'),{
-      type:'line',
-      data:{labels:consumi.map(e=>new Date(e.date+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'})),
-        datasets:[{data:consumi.map(e=>e.kml.toFixed(2)),borderColor:'#4a9680',backgroundColor:'rgba(74,150,128,0.08)',tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:'#4a9680'}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:sc}
-    });
-  }
-}
-
-// STORICO
-function renderStorico() {
-  const consumiMap={};
-  getConsumi().forEach(e=>consumiMap[e.id]=e);
-  const sorted=[...db].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  document.getElementById('storico-count').textContent=db.length+' registrazioni';
-  const list=document.getElementById('entry-list');
-
-  if (db.length===0) {
-    list.innerHTML='<div class="empty-state"><div class="es-icon">📭</div><div class="es-text">Nessuna registrazione ancora</div></div>';
+  // Step 1 login: verifica codice esistente
+  if (wizStep === 1 && wizMode === 'login') {
+    const raw = document.getElementById('wiz-code-login').value.trim();
+    if (!raw || raw.length < 4) return showToast('⚠ Codice di almeno 4 caratteri');
+    const code = raw.toLowerCase().replace(/[^a-z0-9_\-]/g,'');
+    const statusEl = document.getElementById('wiz-login-status');
+    document.getElementById('wiz-next-btn').disabled = true;
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#f0f4f8';
+    statusEl.style.color = '#5a7a92';
+    statusEl.textContent = '🔍 Verifico codice...';
+    const { data: existing } = await supabase.from('profiles').select('nome,cognome,macchina,tipo_rifornimento').eq('device_id', code).single();
+    document.getElementById('wiz-next-btn').disabled = false;
+    if (existing) {
+      DEVICE_ID = setDeviceId(code);
+      statusEl.style.background = '#d4ede7';
+      statusEl.style.color = '#2a6a55';
+      statusEl.textContent = `✓ Bentornato ${existing.nome}! Carico i tuoi dati...`;
+      await loadFromSupabase();
+      setTimeout(() => hideWizard(), 800);
+    } else {
+      statusEl.style.background = '#fde8e8';
+      statusEl.style.color = '#a33';
+      statusEl.textContent = '⚠ Codice non trovato. Controlla o crea un nuovo account.';
+    }
     return;
   }
 
+  // Step 1 register: verifica codice non esistente
+  if (wizStep === 1 && wizMode === 'register') {
+    const raw = document.getElementById('wiz-code-register').value.trim();
+    if (!raw || raw.length < 4) return showToast('⚠ Codice di almeno 4 caratteri');
+    const code = raw.toLowerCase().replace(/[^a-z0-9_\-]/g,'');
+    if (code.length < 4) return showToast('⚠ Usa solo lettere e numeri');
+    const statusEl = document.getElementById('wiz-register-status');
+    document.getElementById('wiz-next-btn').disabled = true;
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#f0f4f8';
+    statusEl.style.color = '#5a7a92';
+    statusEl.textContent = '🔍 Verifico disponibilità...';
+    const { data: existing } = await supabase.from('profiles').select('nome').eq('device_id', code).single();
+    document.getElementById('wiz-next-btn').disabled = false;
+    if (existing) {
+      statusEl.style.background = '#fde8e8';
+      statusEl.style.color = '#a33';
+      statusEl.textContent = '⚠ Codice già in uso. Scegline un altro.';
+      return;
+    } else {
+      DEVICE_ID = setDeviceId(code);
+      statusEl.style.background = '#ddeaf4';
+      statusEl.style.color = '#2a5a7a';
+      statusEl.textContent = `✓ Codice "${code}" disponibile!`;
+      wizStep = 2; updateWizStep(); return;
+    }
+  }
+
+  if (wizStep===2) {
+    // Nome/cognome
+    const n=document.getElementById('wiz-nome').value.trim(), c=document.getElementById('wiz-cognome').value.trim();
+    if (!n||!c) return showToast('⚠ Inserisci nome e cognome');
+    wizStep=3;
+  } else if (wizStep===3) {
+    // Macchina + carburante
+    const m=document.getElementById('wiz-macchina').value.trim();
+    if (!m) return showToast('⚠ Inserisci tipo macchina');
+    if (!wizFuelSel) return showToast('⚠ Seleziona tipo rifornimento');
+    const fi=wizFuelSel==='Benzina'?'⛽':wizFuelSel==='GPL'?'🟢':'⛽🟢';
+    const code = DEVICE_ID;
+    document.getElementById('wiz-summary').innerHTML=`🔑 Codice: <strong>${code}</strong><br>👤 ${document.getElementById('wiz-nome').value.trim()} ${document.getElementById('wiz-cognome').value.trim()}<br>🚗 ${m}<br>${fi} Rifornimento: ${wizFuelSel}`;
+    wizStep=4;
+  } else if (wizStep===4) {
+    // Salva
+    profile.nome=document.getElementById('wiz-nome').value.trim();
+    profile.cognome=document.getElementById('wiz-cognome').value.trim();
+    profile.macchina=document.getElementById('wiz-macchina').value.trim();
+    profile.tipoRifornimento=wizFuelSel;
+    await saveProfileToSupabase();
+    hideWizard(); applyProfile(); showToast('✓ Profilo salvato su cloud! ☁️');
+    return;
+  }
+  updateWizStep();
+}
+function wizBack() {
+  if (wizStep === 1) {
+    // Torna alla scelta login/register
+    wizStep = 0; wizMode = 'choose';
+    setActiveWizStep('wiz-step-0a');
+    document.getElementById('wiz-back-btn').style.display = 'none';
+    document.getElementById('wiz-next-btn').textContent = 'Avanti →';
+  } else if (wizStep > 1) {
+    wizStep--;
+    updateWizStep();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// PROFILO
+// ═══════════════════════════════════════════════
+function updateSidebarStats() {
+  const fuel = db.filter(e=>e.type==='Carburante');
+  const allKm = db.length ? (Math.max(...db.map(e=>e.km)) - Math.min(...db.map(e=>e.km))) : 0;
+  const totalSpeso = db.reduce((s,e)=>s+e.cost,0);
+  // Globale km/L: somma litri benzina+gpl, diviso km percorsi
+  const totalLitri = fuel.reduce((s,e)=>s+(e.liters||0),0);
+  const mediaKmL = totalLitri > 0 && allKm > 0 ? (allKm / totalLitri) : null;
+
+  document.getElementById('sb-totale-speso').textContent = '€ '+totalSpeso.toFixed(2);
+  document.getElementById('sb-km-totali').textContent = allKm > 0 ? allKm.toFixed(0)+' km' : '—';
+  document.getElementById('sb-media-kml').textContent = mediaKmL ? mediaKmL.toFixed(2)+' km/L' : '—';
+
+  const tipo = profile.tipoRifornimento;
+  const showBenz = tipo==='Benzina' || tipo==='Entrambi';
+  const showGpl  = tipo==='GPL'     || tipo==='Entrambi';
+  const showBoth = tipo==='Entrambi';
+
+  document.getElementById('sb-block-benz').style.display = (showBenz && showBoth) ? 'block' : 'none';
+  document.getElementById('sb-block-gpl').style.display  = (showGpl  && showBoth) ? 'block' : 'none';
+
+  function fuelStats(fuelType, prefix) {
+    const ents = fuel.filter(e=>e.fuelType===fuelType);
+    const speso = ents.reduce((s,e)=>s+e.cost,0);
+    const litri = ents.reduce((s,e)=>s+(e.liters||0),0);
+    const ppL   = litri>0 ? speso/litri : null;
+    // km/L: serve distanza percorsa con quel carburante (approx: litri>0, km = somma differenze consecutive)
+    const sorted = [...ents].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    let kmTot=0; for(let i=1;i<sorted.length;i++) kmTot+=Math.max(0,sorted[i].km-sorted[i-1].km);
+    const kml = litri>0 && kmTot>0 ? kmTot/litri : null;
+    document.getElementById(prefix+'-speso').textContent = '€ '+speso.toFixed(0);
+    document.getElementById(prefix+'-litri').textContent = litri>0 ? litri.toFixed(0)+' L' : '—';
+    document.getElementById(prefix+'-kml').textContent   = kml ? kml.toFixed(2) : '—';
+    document.getElementById(prefix+'-ppL').textContent   = ppL ? '€ '+ppL.toFixed(3) : '—';
+  }
+  if (showBenz && showBoth) fuelStats('Benzina','sb-benz');
+  if (showGpl  && showBoth) fuelStats('GPL','sb-gpl');
+}
+
+function applyProfile() {
+  const full=[profile.nome,profile.cognome].filter(Boolean).join(' ')||'—';
+  const ini=((profile.nome[0]||'')+(profile.cognome[0]||'')).toUpperCase()||'?';
+  document.getElementById('topbar-avatar').textContent=ini;
+  document.getElementById('topbar-name').textContent=profile.nome||'—';
+  document.getElementById('sidebar-avatar').textContent=ini;
+  document.getElementById('sidebar-username').textContent=full;
+  document.getElementById('sidebar-usercap').textContent=profile.macchina||'';
+  const tipo=profile.tipoRifornimento;
+  document.getElementById('fuel-switcher-wrap').style.display=tipo==='Entrambi'?'block':'none';
+  document.getElementById('charts-gpl-wrap').style.display=(tipo==='GPL'||tipo==='Entrambi')?'block':'none';
+  document.getElementById('charts-benz-wrap').style.display=(tipo==='Benzina'||tipo==='Entrambi')?'block':'none';
+  if (tipo==='GPL') switchFuel('GPL');
+  else switchFuel('Benzina');
+  document.getElementById('s-nome').value=profile.nome||'';
+  document.getElementById('s-cognome').value=profile.cognome||'';
+  document.getElementById('s-macchina').value=profile.macchina||'';
+  settingsFuelType(profile.tipoRifornimento,true);
+  updateSidebarStats();
+  const codeEl = document.getElementById('s-codice-display');
+  if (codeEl) codeEl.textContent = DEVICE_ID || '—';
+}
+function logout() {
+  if (!confirm('Vuoi uscire? I tuoi dati rimangono su cloud e potrai rientrare con il tuo codice.')) return;
+  localStorage.removeItem('carlog_device_id');
+  // Ricarica la pagina: riparte da zero senza nessun dato in memoria
+  window.location.reload();
+}
+function copyCode() {
+  const code = DEVICE_ID;
+  if (!code) return;
+  navigator.clipboard.writeText(code).then(()=>showToast('✓ Codice copiato!')).catch(()=>{
+    // fallback
+    const el = document.createElement('textarea');
+    el.value = code; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    showToast('✓ Codice copiato!');
+  });
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+function goTo(page, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active'); closeSidebar();
+  if (page==='dashboard') renderDashboard();
+  if (page==='rifornimento') renderFuelCharts();
+  if (page==='storico') renderStorico();
+  if (page==='impostazioni') applyProfile();
+  if (page==='backup') checkLocalStorageMigration();
+}
+
+// ═══════════════════════════════════════════════
+// FUEL SWITCHER
+// ═══════════════════════════════════════════════
+function switchFuel(tipo) {
+  currentFuel=tipo;
+  const isBenz=tipo==='Benzina';
+  document.getElementById('sw-benz')?.classList.toggle('active-benz',isBenz);
+  document.getElementById('sw-benz')?.classList.remove('active-gpl');
+  document.getElementById('sw-gpl')?.classList.toggle('active-gpl',!isBenz);
+  document.getElementById('sw-gpl')?.classList.remove('active-benz');
+  document.getElementById('rif-form-title').textContent=isBenz?'Nuovo Rifornimento Benzina':'Nuovo Rifornimento GPL';
+  document.getElementById('rif-sub').textContent=isBenz?'Registra un rifornimento di benzina':'Registra un rifornimento GPL';
+  document.getElementById('litri-box').classList.toggle('gpl-mode',!isBenz);
+  const btn=document.getElementById('rif-save-btn');
+  btn.classList.toggle('gpl',!isBenz);
+  btn.textContent=isBenz?'Salva Rifornimento Benzina':'Salva Rifornimento GPL';
+  calcLitri();
+}
+
+function calcLitri() {
+  const cost=parseFloat(document.getElementById('f-cost').value);
+  const ppl=parseFloat(document.getElementById('f-ppl').value);
+  document.getElementById('litri-display').textContent=(cost>0&&ppl>0)?(cost/ppl).toFixed(2)+' L':'— L';
+}
+
+// ═══════════════════════════════════════════════
+// SAVE / DELETE
+// ═══════════════════════════════════════════════
+async function saveFuel() {
+  const km=parseFloat(document.getElementById('f-km').value);
+  const cost=parseFloat(document.getElementById('f-cost').value);
+  const ppl=parseFloat(document.getElementById('f-ppl').value);
+  const date=document.getElementById('f-date').value;
+  if (!km||!cost||!ppl||!date) return showToast('⚠ Compila tutti i campi');
+  const liters=cost/ppl;
+  const entry={ id:Date.now(), type:'Carburante', fuelType:currentFuel, km, cost, liters, date, pricePerLiter:ppl, desc:currentFuel };
+  await saveEntryToSupabase(entry);
+  db.push(entry); db.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  ['f-km','f-cost','f-ppl'].forEach(id=>document.getElementById(id).value='');
+  calcLitri();
+  showToast('✓ Salvato su cloud ☁️');
+  renderFuelCharts(); renderDashboard(); updateSidebarStats();
+}
+
+async function saveMaint() {
+  const km=parseFloat(document.getElementById('m-km').value);
+  const cost=parseFloat(document.getElementById('m-cost').value);
+  const date=document.getElementById('m-date').value;
+  const desc=document.getElementById('m-desc').value.trim();
+  if (!km||!cost||!date||!desc) return showToast('⚠ Compila tutti i campi');
+  const entry={ id:Date.now(), type:'Manutenzione', fuelType:null, km, cost, liters:0, date, pricePerLiter:0, desc };
+  await saveEntryToSupabase(entry);
+  db.push(entry); db.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  ['m-km','m-cost','m-desc'].forEach(id=>document.getElementById(id).value='');
+  showToast('✓ Spesa salvata su cloud ☁️');
+  renderDashboard(); updateSidebarStats();
+}
+
+async function deleteEntry(id) {
+  db=db.filter(e=>e.id!==id);
+  await deleteEntryFromSupabase(id);
+  renderStorico(); renderDashboard(); updateSidebarStats();
+}
+
+async function clearAll() {
+  if (!confirm('Cancellare TUTTI i dati dal cloud?')) return;
+  startSync();
+  await supabase.from('entries').delete().eq('device_id', DEVICE_ID);
+  db=[]; endSync(); renderStorico(); renderDashboard(); updateSidebarStats();
+  showToast('✓ Dati cancellati');
+}
+
+// ═══════════════════════════════════════════════
+// CONSUMI
+// ═══════════════════════════════════════════════
+function getConsumi(fuelType) {
+  const fuel=db.filter(e=>e.type==='Carburante'&&(fuelType?(e.fuelType||'Benzina')===fuelType:true)).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  return fuel.map((e,i)=>{
+    if(i===0) return {...e,kml:null,l100:null};
+    const prev=fuel[i-1], delta=e.km-prev.km;
+    if(delta<=0||e.liters<=0) return {...e,kml:null,l100:null};
+    return {...e,kml:delta/e.liters,l100:(e.liters/delta)*100};
+  });
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const now=new Date(), cy=now.getFullYear(), cm=now.getMonth();
+  const thisM=db.filter(e=>{const d=new Date(e.date+'T12:00:00');return d.getFullYear()===cy&&d.getMonth()===cm;});
+  const lastM=db.filter(e=>{const d=new Date(e.date+'T12:00:00');const lm=new Date(cy,cm-1,1);return d.getFullYear()===lm.getFullYear()&&d.getMonth()===lm.getMonth();});
+  const sumThis=thisM.reduce((s,e)=>s+e.cost,0), sumLast=lastM.reduce((s,e)=>s+e.cost,0);
+  const totalCost=db.reduce((s,e)=>s+e.cost,0), totalLit=db.filter(e=>e.type==='Carburante').reduce((s,e)=>s+e.liters,0);
+  document.getElementById('d-mese').textContent='€ '+sumThis.toFixed(2);
+  document.getElementById('d-totale').textContent='€ '+totalCost.toFixed(2);
+  document.getElementById('d-entries').textContent=db.length+' registrazioni';
+  document.getElementById('d-litri-tot').textContent=totalLit.toFixed(1)+' L totali';
+  const tEl=document.getElementById('d-mese-trend');
+  if(sumLast>0){const pct=((sumThis-sumLast)/sumLast*100).toFixed(1);tEl.style.display='block';tEl.textContent=(pct>0?'↑ ':'↓ ')+Math.abs(pct)+'% vs mese scorso';tEl.className=pct>0?'card-trend-up':'card-trend-down';}else{tEl.style.display='none';}
+  const cAll=getConsumi(null).filter(e=>e.kml!==null);
+  if(cAll.length>0) document.getElementById('d-consumo').textContent=(cAll.reduce((s,e)=>s+e.l100,0)/cAll.length).toFixed(1)+' L/100km';
+  const kms=db.map(e=>e.km);
+  if(kms.length>=2){const tk=Math.max(...kms)-Math.min(...kms);document.getElementById('d-km-tot').textContent=tk.toLocaleString('it')+' km percorsi';if(tk>0)document.getElementById('d-costkm').textContent='€ '+(totalCost/tk).toFixed(3);}
+  const fE=db.filter(e=>e.type==='Carburante'), mE=db.filter(e=>e.type==='Manutenzione');
+  document.getElementById('d-count-fuel').textContent=fE.length;
+  document.getElementById('d-sum-fuel').textContent='€ '+fE.reduce((s,e)=>s+e.cost,0).toFixed(2);
+  document.getElementById('d-count-man').textContent=mE.length;
+  document.getElementById('d-sum-man').textContent='€ '+mE.reduce((s,e)=>s+e.cost,0).toFixed(2);
+  renderDashboardCharts();
+}
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function renderDashboardCharts(){
+  const mB={},mG={},mM={};
+  db.forEach(e=>{const d=new Date(e.date+'T12:00:00'),k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(e.type==='Carburante'&&(e.fuelType||'Benzina')==='Benzina')mB[k]=(mB[k]||0)+e.cost;
+    else if(e.type==='Carburante'&&e.fuelType==='GPL')mG[k]=(mG[k]||0)+e.cost;
+    else if(e.type==='Manutenzione')mM[k]=(mM[k]||0)+e.cost;
+  });
+  const allM=[...new Set([...Object.keys(mB),...Object.keys(mG),...Object.keys(mM)])].sort();
+  const sc={x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}};
+  destroyChart('chartMensile');
+  if(allM.length>0){
+    const ds=[];
+    if(Object.keys(mB).length)ds.push({label:'Benzina',data:allM.map(m=>(mB[m]||0).toFixed(2)),backgroundColor:'#4a7fa5',borderRadius:5});
+    if(Object.keys(mG).length)ds.push({label:'GPL',data:allM.map(m=>(mG[m]||0).toFixed(2)),backgroundColor:'#4a9680',borderRadius:5});
+    if(Object.keys(mM).length)ds.push({label:'Manutenzione',data:allM.map(m=>(mM[m]||0).toFixed(2)),backgroundColor:'#c49a5a',borderRadius:5});
+    if(ds.length)charts['chartMensile']=new Chart(document.getElementById('chartMensile').getContext('2d'),{type:'bar',data:{labels:allM.map(m=>{const[y,mo]=m.split('-');return`${mo}/${y.slice(2)}`;}),datasets:ds},options:{responsive:true,plugins:{legend:{labels:{font:{size:11},color:'#6b7280'}}},scales:{x:{...sc.x,stacked:true},y:{...sc.y,stacked:true}}}});
+  }
+  destroyChart('chartDonut');
+  const sB=db.filter(e=>e.type==='Carburante'&&(e.fuelType||'Benzina')==='Benzina').reduce((s,e)=>s+e.cost,0);
+  const sG=db.filter(e=>e.type==='Carburante'&&e.fuelType==='GPL').reduce((s,e)=>s+e.cost,0);
+  const sM=db.filter(e=>e.type==='Manutenzione').reduce((s,e)=>s+e.cost,0);
+  const legEl=document.getElementById('donut-legend');
+  const dd=[],dc=[],dl=[];
+  if(sB>0){dd.push(sB.toFixed(2));dc.push('#4a7fa5');dl.push('Benzina');}
+  if(sG>0){dd.push(sG.toFixed(2));dc.push('#4a9680');dl.push('GPL');}
+  if(sM>0){dd.push(sM.toFixed(2));dc.push('#c49a5a');dl.push('Manutenzione');}
+  if(dd.length){
+    charts['chartDonut']=new Chart(document.getElementById('chartDonut').getContext('2d'),{type:'doughnut',data:{labels:dl,datasets:[{data:dd,backgroundColor:dc,borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'65%',plugins:{legend:{display:false}}}});
+    const am={Benzina:sB,GPL:sG,Manutenzione:sM};
+    legEl.innerHTML=dl.map((l,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${dc[i]}"></div>${l} <strong>€ ${am[l].toFixed(2)}</strong></div>`).join('');
+  }else{legEl.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0">Nessun dato ancora</div>';}
+}
+
+// ═══════════════════════════════════════════════
+// FUEL CHARTS
+// ═══════════════════════════════════════════════
+function renderFuelCharts(){
+  const sc={x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}};
+  function fmt(d){return new Date(d+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});}
+  function lineChart(id,data,color,yKey){
+    destroyChart(id); if(!data.length)return;
+    charts[id]=new Chart(document.getElementById(id).getContext('2d'),{type:'line',data:{labels:data.map(e=>fmt(e.date)),datasets:[{data:data.map(e=>parseFloat(e[yKey]).toFixed(yKey==='pricePerLiter'?3:2)),borderColor:color,backgroundColor:color+'20',tension:0.3,fill:true,pointRadius:4,pointBackgroundColor:color}]},options:{responsive:true,plugins:{legend:{display:false}},scales:sc}});
+  }
+  function statsBox(id,data){
+    const el=document.getElementById(id);if(!el)return;if(!data.length){el.innerHTML='';return;}
+    const ap=data.reduce((s,e)=>s+e.pricePerLiter,0)/data.length, tL=data.reduce((s,e)=>s+e.liters,0), tC=data.reduce((s,e)=>s+e.cost,0);
+    el.innerHTML=`<div class="chart-stat"><div class="chart-stat-val">€ ${ap.toFixed(3)}</div><div class="chart-stat-lbl">Medio €/L</div></div><div class="chart-stat"><div class="chart-stat-val">${tL.toFixed(0)} L</div><div class="chart-stat-lbl">Totale litri</div></div><div class="chart-stat"><div class="chart-stat-val">€ ${tC.toFixed(0)}</div><div class="chart-stat-lbl">Totale speso</div></div>`;
+  }
+  function consumiBox(id,cons){
+    const el=document.getElementById(id);if(!el)return;
+    const v=cons.filter(e=>e.kml!==null);if(!v.length){el.innerHTML='';return;}
+    const ak=v.reduce((s,e)=>s+e.kml,0)/v.length, al=v.reduce((s,e)=>s+e.l100,0)/v.length;
+    el.innerHTML=`<div class="chart-stat"><div class="chart-stat-val">${ak.toFixed(2)}</div><div class="chart-stat-lbl">Media km/L</div></div><div class="chart-stat"><div class="chart-stat-val">${al.toFixed(1)}</div><div class="chart-stat-lbl">Media L/100km</div></div><div class="chart-stat"><div class="chart-stat-val">${v.length}</div><div class="chart-stat-lbl">Calcoli</div></div>`;
+  }
+  const bD=db.filter(e=>e.type==='Carburante'&&(e.fuelType||'Benzina')==='Benzina').sort((a,b)=>new Date(a.date)-new Date(b.date));
+  lineChart('chartPrezzoL',bD,'#4a7fa5','pricePerLiter'); statsBox('stats-benz-ppl',bD);
+  const cB=getConsumi('Benzina'); lineChart('chartKmL',cB.filter(e=>e.kml!==null),'#4a7fa5','kml'); consumiBox('stats-benz-kml',cB);
+  const gD=db.filter(e=>e.type==='Carburante'&&e.fuelType==='GPL').sort((a,b)=>new Date(a.date)-new Date(b.date));
+  lineChart('chartPrezzoGPL',gD,'#4a9680','pricePerLiter'); statsBox('stats-gpl-ppl',gD);
+  const cG=getConsumi('GPL'); lineChart('chartKmGPL',cG.filter(e=>e.kml!==null),'#4a9680','kml'); consumiBox('stats-gpl-kml',cG);
+}
+
+// ═══════════════════════════════════════════════
+// STORICO
+// ═══════════════════════════════════════════════
+function renderStorico(){
+  const cMap={};
+  ['Benzina','GPL'].forEach(t=>getConsumi(t).forEach(e=>cMap[e.id]=e));
+  const sorted=[...db].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('storico-count').textContent=db.length+' registrazioni';
+  const list=document.getElementById('entry-list');
+  if(!db.length){list.innerHTML='<div class="empty-state"><div class="es-icon">📭</div><div class="es-text">Nessuna registrazione ancora</div></div>';return;}
   list.innerHTML=sorted.map(e=>{
-    const c=consumiMap[e.id];
-    const isFuel=e.type==='Carburante';
-    const icon=isFuel?'⛽':'🔧';
-    const iconBg=isFuel?'icon-blue':'icon-green';
-    const dateStr=new Date(e.date+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
-    const meta=isFuel?`${dateStr} · ${e.km.toLocaleString('it')} km · ${e.liters}L · €${e.pricePerLiter.toFixed(3)}/L`:`${dateStr} · ${e.km.toLocaleString('it')} km`;
-    const cons=(isFuel&&c&&c.kml)?`⚡ ${c.kml.toFixed(2)} km/L · ${c.l100.toFixed(1)} L/100km`:'';
-    return `<div class="entry-card">
-      <div class="entry-icon ${iconBg}">${icon}</div>
-      <div class="entry-body">
-        <div class="entry-title">${e.desc||e.type}</div>
-        <div class="entry-meta">${meta}</div>
-        ${cons?`<div class="entry-consumi">${cons}</div>`:''}
-      </div>
-      <div class="entry-right">
-        <div class="entry-cost">€ ${e.cost.toFixed(2)}</div>
-      </div>
-      <button class="entry-delete" onclick="deleteEntry(${e.id})">✕</button>
-    </div>`;
+    const c=cMap[e.id], iF=e.type==='Carburante', isG=iF&&e.fuelType==='GPL';
+    const icon=iF?(isG?'🟢':'⛽'):'🔧', iBg=iF?(isG?'icon-green':'icon-blue'):'icon-green';
+    const ds=new Date(e.date+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
+    const meta=iF?`${ds} · ${e.km.toLocaleString('it')} km · ${e.liters.toFixed(2)}L · €${e.pricePerLiter.toFixed(3)}/L`:`${ds} · ${e.km.toLocaleString('it')} km`;
+    const cons=(iF&&c&&c.kml)?`⚡ ${c.kml.toFixed(2)} km/L · ${c.l100.toFixed(1)} L/100km`:'';
+    return `<div class="entry-card"><div class="entry-icon ${iBg}">${icon}</div><div class="entry-body"><div class="entry-title">${e.desc||e.type}</div><div class="entry-meta">${meta}</div>${cons?`<div class="entry-consumi">${cons}</div>`:''}</div><div class="entry-right"><div class="entry-cost">€ ${e.cost.toFixed(2)}</div>${iF?`<div class="entry-liters">${e.liters.toFixed(2)} L</div>`:''}</div><button class="entry-delete" onclick="deleteEntry(${e.id})">✕</button></div>`;
   }).join('');
 }
 
-// BACKUP
-function exportData() {
-  if (db.length===0) return showToast('⚠ Nessun dato da esportare');
-  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`rebecca_carlog_${new Date().toISOString().split('T')[0]}.json`;
-  a.click(); URL.revokeObjectURL(a.href);
-  showToast('✓ Backup scaricato!');
+// ═══════════════════════════════════════════════
+// IMPOSTAZIONI
+// ═══════════════════════════════════════════════
+function settingsFuelType(tipo,silent){
+  const map={'Benzina':'s-ft-benz','GPL':'s-ft-gpl','Entrambi':'s-ft-both'};
+  document.querySelectorAll('.fuel-type-opt[id^="s-ft-"]').forEach(el=>el.classList.remove('sel','sel-gpl'));
+  const el=document.getElementById(map[tipo]);if(el)el.classList.add(tipo==='GPL'?'sel-gpl':'sel');
+  if(!silent)profile.tipoRifornimento=tipo;
+}
+async function saveSettings(){
+  const n=document.getElementById('s-nome').value.trim(), c=document.getElementById('s-cognome').value.trim(), m=document.getElementById('s-macchina').value.trim();
+  if(!n||!c) return showToast('⚠ Inserisci nome e cognome');
+  profile.nome=n; profile.cognome=c; profile.macchina=m;
+  await saveProfileToSupabase();
+  applyProfile(); showToast('✓ Impostazioni salvate su cloud ☁️');
 }
 
-function importData(event) {
-  const file=event.target.files[0]; if (!file) return;
+// ═══════════════════════════════════════════════
+// BACKUP / IMPORTAZIONE
+// ═══════════════════════════════════════════════
+function exportData(){
+  if(!db.length) return showToast('⚠ Nessun dato da esportare');
+  const blob=new Blob([JSON.stringify({profile,db},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`rebecca_carlog_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(a.href); showToast('✓ Backup scaricato!');
+}
+
+async function importData(event){
+  const file=event.target.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload=e=>{
+  reader.onload=async e=>{
     try {
       const imp=JSON.parse(e.target.result);
-      if (!Array.isArray(imp)) throw new Error();
-      if (!confirm(`Trovate ${imp.length} registrazioni. Sostituire i dati attuali?`)) return;
-      db=imp; save(); renderDashboard(); renderStorico();
-      showToast(`✓ ${imp.length} registrazioni importate!`);
-    } catch { showToast('⚠ File non valido'); }
+      let importedDb, importedProfile;
+      if(Array.isArray(imp)){importedDb=imp;importedProfile=null;}
+      else if(imp.db){importedDb=imp.db;importedProfile=imp.profile;}
+      else throw new Error();
+      if(!confirm(`Trovate ${importedDb.length} registrazioni. Importare su Supabase?`))return;
+      startSync(); showToast('⏳ Importazione in corso...');
+      // Salva su Supabase in batch
+      const rows=importedDb.map(e=>({
+        id:e.id, device_id:DEVICE_ID,
+        type:e.type, fuel_type:e.fuelType||e.fuel_type||null,
+        km:e.km, cost:e.cost, liters:e.liters||0,
+        price_per_liter:e.pricePerLiter||e.price_per_liter||0,
+        date:e.date, descr:e.desc||e.descr||e.type||''
+      }));
+      const {error}=await supabase.from('entries').upsert(rows);
+      if(error)throw error;
+      if(importedProfile){
+        profile={...profile,...importedProfile,tipoRifornimento:importedProfile.tipoRifornimento||importedProfile.tipo_rifornimento||'Benzina'};
+        await saveProfileToSupabase();
+      }
+      endSync();
+      await loadFromSupabase();
+      showToast(`✓ ${rows.length} registrazioni importate su cloud! ☁️`);
+    } catch(err){endSync();showToast('⚠ Errore importazione: '+err.message);}
     event.target.value='';
   };
   reader.readAsText(file);
 }
 
-// CAR PHOTO
-function loadCarPhoto(event) {
-  const file=event.target.files[0]; if (!file) return;
+// ═══════════════════════════════════════════════
+// MIGRAZIONE DA LOCALSTORAGE
+// ═══════════════════════════════════════════════
+function checkLocalStorageMigration(){
+  try {
+    const old=localStorage.getItem('carlog_v3');
+    const box=document.getElementById('migrate-box');
+    if(old&&JSON.parse(old).length>0){box.style.display='block';}
+    else{box.style.display='none';}
+  }catch(e){}
+}
+
+async function migrateFromLocalStorage(){
+  try {
+    const old=JSON.parse(localStorage.getItem('carlog_v3')||'[]');
+    const prof=JSON.parse(localStorage.getItem('carlog_profile')||'{}');
+    if(!old.length){showToast('⚠ Nessun dato locale trovato');return;}
+    if(!confirm(`Migrare ${old.length} registrazioni locali su Supabase?`))return;
+    startSync(); showToast('⏳ Migrazione in corso...');
+    const rows=old.map(e=>({
+      id:e.id, device_id:DEVICE_ID,
+      type:e.type, fuel_type:e.fuelType||null,
+      km:e.km, cost:e.cost, liters:e.liters||0,
+      price_per_liter:e.pricePerLiter||0,
+      date:e.date, descr:e.desc||e.type||''
+    }));
+    const {error}=await supabase.from('entries').upsert(rows);
+    if(error)throw error;
+    if(prof.nome){
+      profile={...profile,...prof,tipoRifornimento:prof.tipoRifornimento||'Benzina'};
+      await saveProfileToSupabase();
+    }
+    // Pulisce localStorage (tranne device_id e photo)
+    localStorage.removeItem('carlog_v3');
+    localStorage.removeItem('carlog_profile');
+    endSync();
+    await loadFromSupabase();
+    document.getElementById('migrate-box').style.display='none';
+    showToast(`✓ ${rows.length} registrazioni migrate su cloud! ☁️`);
+  }catch(err){endSync();showToast('⚠ Errore migrazione: '+err.message);}
+}
+
+// ═══════════════════════════════════════════════
+// CAR PHOTO (localStorage — solo la foto)
+// ═══════════════════════════════════════════════
+function loadCarPhoto(event){
+  const file=event.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{
-    localStorage.setItem('carlog_photo',e.target.result);
-    showCarPhoto(e.target.result);
-  };
+  reader.onload=e=>{try{localStorage.setItem('carlog_photo',e.target.result);}catch(ex){}showCarPhoto(e.target.result);};
   reader.readAsDataURL(file);
 }
-function showCarPhoto(dataUrl) {
-  const img=document.getElementById('carPhotoImg');
-  img.src=dataUrl; img.style.display='block';
+function showCarPhoto(url){
+  const img=document.getElementById('carPhotoImg');img.src=url;img.style.display='block';
   document.getElementById('carPhotoIcon').style.display='none';
 }
 
+// ═══════════════════════════════════════════════
 // TOAST
-function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2400);
+// ═══════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
+// ═══════════════════════════════════════════════
 // INIT
-const savedPhoto=localStorage.getItem('carlog_photo');
-if (savedPhoto) showCarPhoto(savedPhoto);
-else if (window._carIconUrl) {
-  const ai = document.getElementById('aygoIcon');
-  if (ai) ai.src = window._carIconUrl;
+// ═══════════════════════════════════════════════
+['f-date','m-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=new Date().toISOString().split('T')[0];});
+try{const p=localStorage.getItem('carlog_photo');if(p)showCarPhoto(p);else if(window._carIconUrl){const ai=document.getElementById('aygoIcon');if(ai)ai.src=window._carIconUrl;}}catch(e){}
+
+// Avvio: se non c'è codice utente mostra subito il wizard, altrimenti carica da Supabase
+if (!DEVICE_ID) {
+  showWizard();
+} else {
+  loadFromSupabase().then(()=>{
+    if(!profile.nome) showWizard();
+  });
 }
-renderDashboard();
-renderStorico();
 </script>
 </body>
 </html>
