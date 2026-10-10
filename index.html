@@ -215,10 +215,13 @@ canvas { max-height: 200px; }
 /* ═══ MOBILE TWEAKS ═══ */
 input, select, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .field input, .field select, .wiz-field input { font-size: 16px !important; } /* previene zoom iOS su focus */
-@media (max-width: 360px) {
-  .cards-grid { grid-template-columns: 1fr; }
+@media (max-width: 420px) {
+  .cards-grid { grid-template-columns: 1fr 1fr; }
   .field-row { grid-template-columns: 1fr; }
   .fuel-type-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 360px) {
+  .cards-grid { grid-template-columns: 1fr; }
   .card-value { font-size: 18px; }
 }
 
@@ -236,6 +239,8 @@ input, select, button { -webkit-tap-highlight-color: transparent; touch-action: 
 .field input, .field select { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Inter',sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
 .field input:focus { border-color: var(--blue); background: #fff; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-row .field { min-width: 0; overflow: hidden; }
+.field input[type="date"] { min-width: 0; width: 100%; box-sizing: border-box; }
 .litri-auto-box { background: var(--blue-light); border: 1.5px solid var(--blue-mid); border-radius: 10px; padding: 11px 13px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .litri-auto-box.gpl-mode { background: var(--green-light); border-color: #a0d4c4; }
 .litri-auto-label { font-size: 12px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 5px; }
@@ -900,7 +905,9 @@ function wizBack() {
 // ═══════════════════════════════════════════════
 function updateSidebarStats() {
   const fuel = db.filter(e=>e.type==='Carburante');
-  const allKm = db.length ? (Math.max(...db.map(e=>e.km)) - Math.min(...db.map(e=>e.km))) : 0;
+  // Km totali = somma delta positivi consecutivi (gestisce reset odometro)
+  const sortedDb = db.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+  let allKm = 0; for(let i=1;i<sortedDb.length;i++){const d=sortedDb[i].km-sortedDb[i-1].km;if(d>0)allKm+=d;}
   const totalSpeso = db.reduce((s,e)=>s+e.cost,0);
   // Globale km/L: somma litri benzina+gpl, diviso km percorsi
   const totalLitri = fuel.reduce((s,e)=>s+(e.liters||0),0);
@@ -1095,8 +1102,10 @@ function renderDashboard() {
   if(sumLast>0){const pct=((sumThis-sumLast)/sumLast*100).toFixed(1);tEl.style.display='block';tEl.textContent=(pct>0?'↑ ':'↓ ')+Math.abs(pct)+'% vs mese scorso';tEl.className=pct>0?'card-trend-up':'card-trend-down';}else{tEl.style.display='none';}
   const cAll=getConsumi(null).filter(e=>e.kml!==null);
   if(cAll.length>0) document.getElementById('d-consumo').textContent=(cAll.reduce((s,e)=>s+e.l100,0)/cAll.length).toFixed(1)+' L/100km';
-  const kms=db.map(e=>e.km);
-  if(kms.length>=2){const tk=Math.max(...kms)-Math.min(...kms);document.getElementById('d-km-tot').textContent=tk.toLocaleString('it')+' km percorsi';if(tk>0)document.getElementById('d-costkm').textContent='€ '+(totalCost/tk).toFixed(3);}
+  // Km totali = somma dei delta positivi consecutivi (gestisce reset odometro)
+  const sortedAll=db.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+  let tk=0; for(let i=1;i<sortedAll.length;i++){const d=sortedAll[i].km-sortedAll[i-1].km;if(d>0)tk+=d;}
+  if(tk>0){document.getElementById('d-km-tot').textContent=tk.toLocaleString('it')+' km percorsi';document.getElementById('d-costkm').textContent='€ '+(totalCost/tk).toFixed(3);}
   const fE=db.filter(e=>e.type==='Carburante'), mE=db.filter(e=>e.type==='Manutenzione');
   document.getElementById('d-count-fuel').textContent=fE.length;
   document.getElementById('d-sum-fuel').textContent='€ '+fE.reduce((s,e)=>s+e.cost,0).toFixed(2);
